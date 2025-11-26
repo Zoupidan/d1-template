@@ -1,4 +1,4 @@
-export function renderHtml(content: string) {
+export function renderHtml(authed: boolean, content: string) {
   return `
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -51,6 +51,11 @@ export function renderHtml(content: string) {
           .primary { background: var(--blue); color: #FFFFFF; border-radius: 10px; padding: 12px 16px; border: none; cursor: pointer; box-shadow: 0 2px 10px rgba(59,130,246,0.3); transition: transform .1s ease; }
           .primary:active { transform: translateY(1px); }
           .now { font-size: 12px; color: var(--muted); }
+          .lock { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,0.25); }
+          .lock-card { width: 100%; max-width: 420px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px var(--shadow); backdrop-filter: blur(6px); }
+          .lock-title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 10px; }
+          .lock-form { display: grid; gap: 10px; }
+          .lock-btn { background: var(--blue); color: #fff; border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer; }
           @media (min-width: 1040px) { .middle { grid-template-columns: 2fr 1.3fr; } }
           @media (max-width: 960px) { .summary { grid-template-columns: 1fr; } }
           @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
@@ -106,6 +111,15 @@ export function renderHtml(content: string) {
             <div class="summary-card"><div class="summary-title">磨损率</div><div class="summary-value" id="sum-rate">0%</div></div>
           </div>
         </div>
+        ${authed ? "" : `
+        <div class="lock">
+          <form class="lock-card lock-form" method="POST" action="/auth">
+            <div class="lock-title">输入密码以进入</div>
+            <input class="input" type="password" name="password" placeholder="请输入密码" autocomplete="off" />
+            <button class="lock-btn" type="submit">进入</button>
+          </form>
+        </div>
+        `}
         <div class="dialog-backdrop" id="dialog">
           <div class="dialog">
             <div class="tabs">
