@@ -1,4 +1,4 @@
-import { renderHtml } from "./renderHtml";
+import { renderHtml, renderLoginHtml } from "./renderHtml";
 
 function parseCookies(h: Headers) {
   const s = h.get("Cookie") || "";
@@ -48,6 +48,9 @@ export default {
     const cookies = parseCookies(request.headers);
     const session = cookies["alpha_session"] || "";
     let authed = false;
+    const apiToken = env.API_TOKEN || "";
+    const authHeader = request.headers.get("Authorization") || request.headers.get("X-Api-Token") || "";
+    const apiAuthed = apiToken && ((authHeader.startsWith("Bearer ") && authHeader.slice(7) === apiToken) || authHeader === apiToken);
     if (session) {
       const parts = session.split(".");
       if (parts.length === 3) {
@@ -91,8 +94,73 @@ export default {
       return new Response("", { status: 401 });
     }
 
+    async function ensureKV() {
+      try {
+        await env.DB.prepare("CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT NOT NULL)").run();
+      } catch {}
+    }
+
+    if (url.pathname === "/theme") {
+      if (!authed && !apiAuthed) return new Response("", { status: 401 });
+      await ensureKV();
+      if (request.method === "GET") {
+        try {
+          const r = await env.DB.prepare("SELECT v FROM kv WHERE k = ?").bind("theme").all();
+          const v = (r.results && r.results[0] && (r.results[0] as any).v) || "{}";
+          return new Response(String(v), { headers: { "content-type": "application/json" } });
+        } catch {
+          return new Response("{}", { headers: { "content-type": "application/json" } });
+        }
+      }
+      if (request.method === "POST") {
+        let payload: unknown = {};
+        const ct = request.headers.get("content-type") || "";
+        if (ct.includes("application/json")) {
+          try { payload = await request.json(); } catch {}
+        }
+        const value = JSON.stringify(payload ?? {});
+        try {
+          await env.DB.prepare("INSERT INTO kv(k, v) VALUES(?, ?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind("theme", value).run();
+          return new Response("", { status: 204 });
+        } catch {
+          return new Response("", { status: 500 });
+        }
+      }
+      return new Response("", { status: 405 });
+    }
+
+    if (url.pathname === "/data") {
+      if (!authed && !apiAuthed) return new Response("", { status: 401 });
+      await ensureKV();
+      if (request.method === "GET") {
+        try {
+          const r = await env.DB.prepare("SELECT v FROM kv WHERE k = ?").bind("data").all();
+          const v = (r.results && r.results[0] && (r.results[0] as any).v) || "{}";
+          return new Response(String(v), { headers: { "content-type": "application/json" } });
+        } catch {
+          return new Response("{}", { headers: { "content-type": "application/json" } });
+        }
+      }
+      if (request.method === "POST") {
+        let payloadText = "{}";
+        const ct = request.headers.get("content-type") || "";
+        if (ct.includes("application/json")) {
+          try { payloadText = JSON.stringify(await request.json()); } catch {}
+        } else {
+          try { payloadText = await request.text(); } catch {}
+        }
+        try {
+          await env.DB.prepare("INSERT INTO kv(k, v) VALUES(?, ?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind("data", payloadText).run();
+          return new Response("", { status: 204 });
+        } catch {
+          return new Response("", { status: 500 });
+        }
+      }
+      return new Response("", { status: 405 });
+    }
+
     if (!authed) {
-      return new Response(renderHtml(false, "[]"), { headers: { "content-type": "text/html" } });
+      return new Response(renderLoginHtml(), { headers: { "content-type": "text/html" } });
     }
     let results: unknown = [];
     try {

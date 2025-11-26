@@ -7,6 +7,7 @@ declare namespace Cloudflare {
         PASSWORD_PLAIN?: string;
         PASSWORD_SALT?: string;
         SESSION_SECRET?: string;
+        API_TOKEN?: string;
     }
 }
 interface Env extends Cloudflare.Env {}

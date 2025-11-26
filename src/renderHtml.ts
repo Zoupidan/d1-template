@@ -7,17 +7,17 @@ export function renderHtml(authed: boolean, content: string) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Alpha 积分管理系统</title>
         <style>
-          :root { --text:#0F172A; --muted:#64748B; --card-bg:rgba(255,255,255,0.7); --border:rgba(148,163,184,0.64); --shadow:rgba(2,8,23,0.4); --blue:#3B82F6; --blue-start:#60A5FA; --dialog-bg:rgba(255,255,255,0.8); }
+          :root { --text:#0F172A; --muted:#64748B; --card-bg:rgba(250,250,250,0.698); --border:rgba(148,163,184,0.64); --shadow:rgba(200,200,200,0.4); --blue:#3B82F6; --blue-start:#60A5FA; --dialog-bg:rgba(255,255,255,0.8); --button-bg:#FFFFFF; --button-hover-bg:#F9FAFB; --table-bg:rgba(255,255,255,0.698); --window-bg:#FFFFFF; }
           * { box-sizing: border-box; }
           html, body { height: 100%; }
-          body { margin: 0; font-family: Segoe UI, Roboto, Arial, sans-serif; color: var(--text); background: #FFFFFF; }
+          body { margin: 0; font-family: Segoe UI, Roboto, Arial, sans-serif; color: var(--text); background: var(--window-bg); }
           .app { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; padding: 14px; }
           .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px; box-shadow: 0 6px 20px var(--shadow); }
           .middle { display: grid; grid-template-columns: 1fr; gap: 16px; }
           .calendar-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
           .calendar-nav { display: flex; gap: 8px; }
-          .btn { padding: 9px 14px; border: 1px solid var(--border); border-radius: 12px; background: #FFFFFF; cursor: pointer; transition: background .2s ease, box-shadow .2s ease; }
-          .btn:hover { background: #F9FAFB; box-shadow: 0 2px 8px rgba(2,8,23,0.1); }
+          .btn { padding: 9px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--button-bg); cursor: pointer; transition: background .2s ease, box-shadow .2s ease; }
+          .btn:hover { background: var(--button-hover-bg); box-shadow: 0 2px 8px rgba(200,200,200,0.25); }
           .month-title { font-size: 16px; font-weight: 600; }
           .week-row { display: grid; grid-template-columns: repeat(7, 1fr); margin-top: 8px; }
           .week-cell { text-align: center; font-size: 14px; color: var(--muted); padding: 6px; }
@@ -30,9 +30,9 @@ export function renderHtml(authed: boolean, content: string) {
           .today-card-header { display: flex; align-items: center; justify-content: space-between; }
           .today-title { font-size: 18px; font-weight: 600; }
           .today-date { font-size: 14px; color: var(--muted); }
-          .settings { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; background: #FFFFFF; cursor: pointer; vertical-align: middle; font-size: 16px; line-height: 1; }
-          .stats-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
-          .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; box-shadow: 0 6px 14px var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+          .settings { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; background: var(--button-bg); cursor: pointer; vertical-align: middle; font-size: 16px; line-height: 1; }
+          .stats-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 1fr; gap: 8px; }
+          .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; box-shadow: 0 6px 14px var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
           .stat-label { color: var(--muted); font-size: 12px; }
           .stat-value { color: var(--text); font-size: 22px; font-weight: 600; }
           .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
@@ -51,13 +51,19 @@ export function renderHtml(authed: boolean, content: string) {
           .primary { background: var(--blue); color: #FFFFFF; border-radius: 10px; padding: 12px 16px; border: none; cursor: pointer; box-shadow: 0 2px 10px rgba(59,130,246,0.3); transition: transform .1s ease; }
           .primary:active { transform: translateY(1px); }
           .now { font-size: 12px; color: var(--muted); }
+          .settings-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; padding: 14px; }
+          .settings-card { width: 100%; max-width: 700px; background: var(--dialog-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px; box-shadow: 0 12px 38px var(--shadow); }
+          .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+          .settings-row { display: flex; align-items: center; gap: 8px; }
+          .settings-row label { width: 140px; color: var(--muted); font-size: 12px; }
+          .settings-actions { margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px; }
           .lock { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,0.25); }
           .lock-card { width: 100%; max-width: 420px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px var(--shadow); backdrop-filter: blur(6px); }
           .lock-title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 10px; }
           .lock-form { display: grid; gap: 10px; }
           .lock-btn { background: var(--blue); color: #fff; border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer; }
           @media (min-width: 1040px) { .middle { grid-template-columns: 2fr 1.3fr; } }
-          @media (max-width: 960px) { .summary { grid-template-columns: 1fr; } }
+          @media (max-width: 960px) { .summary { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
           @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
         </style>
       </head>
@@ -120,6 +126,32 @@ export function renderHtml(authed: boolean, content: string) {
           </form>
         </div>
         `}
+        <div class="settings-backdrop" id="settings">
+          <div class="settings-card">
+            <div class="today-title" style="margin-bottom:8px;">界面设置</div>
+            <div class="settings-grid">
+              <div class="settings-row"><label>卡片透明度</label><input type="range" min="0" max="100" value="70" id="cfg-card-opacity" /></div>
+              <div class="settings-row"><label>阴影透明度</label><input type="range" min="0" max="100" value="40" id="cfg-shadow-opacity" /></div>
+              <div class="settings-row"><label>边框颜色</label><input type="color" id="cfg-border-color" value="#94a3b8" /></div>
+              <div class="settings-row"><label>文本颜色</label><input type="color" id="cfg-text-color" value="#0f172a" /></div>
+              <div class="settings-row"><label>标签颜色</label><input type="color" id="cfg-muted-color" value="#64748b" /></div>
+              <div class="settings-row"><label>按钮背景</label><input type="color" id="cfg-btn-bg" value="#ffffff" /></div>
+              <div class="settings-row"><label>按钮悬停</label><input type="color" id="cfg-btn-hover" value="#f9fafb" /></div>
+              <div class="settings-row"><label>选择起始</label><input type="color" id="cfg-sel-start" value="#60a5fa" /></div>
+              <div class="settings-row"><label>选择结束</label><input type="color" id="cfg-sel-end" value="#3b82f6" /></div>
+            </div>
+            <div class="settings-actions">
+              <div style="flex:1"></div>
+              <button class="btn" id="cfg-cancel">取消</button>
+              <button class="primary" id="cfg-apply">应用</button>
+            </div>
+            <div style="margin-top:12px;" class="today-title">数据上传</div>
+            <div class="settings-row" style="margin-top:8px;">
+              <input type="file" id="cfg-data-file" accept="application/json" />
+              <button class="btn" id="cfg-upload-data">上传 data.json</button>
+            </div>
+          </div>
+        </div>
         <div class="dialog-backdrop" id="dialog">
           <div class="dialog">
             <div class="tabs">
@@ -161,22 +193,66 @@ export function renderHtml(authed: boolean, content: string) {
           </div>
         </div>
         <script>
+          let DATA = null;
           const state = { y: null, m: null, selected: null };
           function fmtDate(y,m,d){ const mm = String(m+1).padStart(2,'0'); const dd = String(d).padStart(2,'0'); return y + '-' + mm + '-' + dd; }
-          function buildMonth(y,m){ const title = document.getElementById('month-title'); title.textContent = y + ' 年 ' + String(m+1).padStart(2,'0') + ' 月'; const grid = document.getElementById('date-grid'); grid.innerHTML = ''; const first = new Date(y,m,1); const startIdx = (first.getDay()+6)%7; const days = new Date(y,m+1,0).getDate(); const today = new Date(); for(let i=0;i<42;i++){ const cell = document.createElement('div'); cell.className = 'date-cell'; const day = i-startIdx+1; if(day>0 && day<=days){ cell.textContent = String(day); const isToday = y===today.getFullYear() && m===today.getMonth() && day===today.getDate(); if(isToday) cell.classList.add('today'); cell.addEventListener('click',()=>{ document.querySelectorAll('.date-cell.selected').forEach(el=>el.classList.remove('selected')); cell.classList.add('selected'); state.selected = { y, m, d: day }; document.getElementById('today-date').textContent = fmtDate(y,m,day); }); cell.addEventListener('dblclick',()=>{ if(isToday) openDialog('calc'); }); } grid.appendChild(cell); }
+          function hasData(dateStr){ if(!DATA) return false; return Boolean(DATA[dateStr] && ((DATA[dateStr].calc && DATA[dateStr].calc.length) || (DATA[dateStr].use && DATA[dateStr].use.length))); }
+          function buildMonth(y,m){ const title = document.getElementById('month-title'); title.textContent = y + ' 年 ' + String(m+1).padStart(2,'0') + ' 月'; const grid = document.getElementById('date-grid'); grid.innerHTML = ''; const first = new Date(y,m,1); const startIdx = (first.getDay()+6)%7; const days = new Date(y,m+1,0).getDate(); const today = new Date(); for(let i=0;i<42;i++){ const cell = document.createElement('div'); cell.className = 'date-cell'; const day = i-startIdx+1; if(day>0 && day<=days){ cell.textContent = String(day); const isToday = y===today.getFullYear() && m===today.getMonth() && day===today.getDate(); if(isToday) cell.classList.add('today'); const ds = fmtDate(y,m,day); if(hasData(ds)) cell.classList.add('has-data'); cell.addEventListener('click',()=>{ document.querySelectorAll('.date-cell.selected').forEach(el=>el.classList.remove('selected')); cell.classList.add('selected'); state.selected = { y, m, d: day }; const td = document.getElementById('today-date'); if(td) td.textContent = fmtDate(y,m,day); fillStatsForDate(ds); }); cell.addEventListener('dblclick',()=>{ openDialog('calc'); }); } grid.appendChild(cell); }
           }
           function currentTimestamp(){ const n = new Date(); const y = n.getFullYear(); const m = String(n.getMonth()+1).padStart(2,'0'); const d = String(n.getDate()).padStart(2,'0'); const hh = String(n.getHours()).padStart(2,'0'); const mm = String(n.getMinutes()).padStart(2,'0'); const ss = String(n.getSeconds()).padStart(2,'0'); return y + '-' + m + '-' + d + ' ' + hh + ':' + mm + ':' + ss; }
           function openDialog(tab){ const backdrop = document.getElementById('dialog'); backdrop.style.display = 'flex'; switchTab(tab); const now = currentTimestamp(); var label = document.getElementById('now-label'); if(label) label.textContent = '时间：' + now; var nc = document.getElementById('now-calc'); if(nc) nc.textContent = '时间：' + now; var nu = document.getElementById('now-use'); if(nu) nu.textContent = '时间：' + now; var ne = document.getElementById('now-edit'); if(ne) ne.textContent = '时间：' + now; }
           function closeDialog(){ document.getElementById('dialog').style.display = 'none'; }
           function switchTab(tab){ document.querySelectorAll('.tab').forEach(t=>{ t.classList.toggle('active', t.dataset.tab===tab); }); document.getElementById('form-calc').style.display = tab==='calc'?'grid':'none'; document.getElementById('form-use').style.display = tab==='use'?'grid':'none'; document.getElementById('form-edit').style.display = tab==='edit'?'grid':'none'; const action = document.getElementById('dialog-action'); action.textContent = tab==='calc'?'计算保存':tab==='use'?'保存使用':'保存修改'; }
-          document.getElementById('open-settings').addEventListener('click',()=>openDialog('edit'));
+          document.getElementById('open-settings').addEventListener('click',()=>{ const s = document.getElementById('settings'); s.style.display = 'flex'; });
+          document.getElementById('cfg-cancel').addEventListener('click',()=>{ const s = document.getElementById('settings'); s.style.display = 'none'; });
+          function applyThemeFromControls(){ const cardOp = Number((document.getElementById('cfg-card-opacity')).value); const shOp = Number((document.getElementById('cfg-shadow-opacity')).value); const bcol = (document.getElementById('cfg-border-color')).value; const tcol = (document.getElementById('cfg-text-color')).value; const mcol = (document.getElementById('cfg-muted-color')).value; const btnBg = (document.getElementById('cfg-btn-bg')).value; const btnHover = (document.getElementById('cfg-btn-hover')).value; const sStart = (document.getElementById('cfg-sel-start')).value; const sEnd = (document.getElementById('cfg-sel-end')).value; const root = document.documentElement; root.style.setProperty('--card-bg', 'rgba(' + [250,250,250].join(',') + ',' + (cardOp/100).toFixed(3) + ')'); root.style.setProperty('--shadow', 'rgba(' + [200,200,200].join(',') + ',' + (shOp/100).toFixed(3) + ')'); root.style.setProperty('--border', bcol); root.style.setProperty('--text', tcol); root.style.setProperty('--muted', mcol); root.style.setProperty('--button-bg', btnBg); root.style.setProperty('--button-hover-bg', btnHover); root.style.setProperty('--blue-start', sStart); root.style.setProperty('--blue', sEnd); const themeObj = { cardOp, shOp, bcol, tcol, mcol, btnBg, btnHover, sStart, sEnd }; localStorage.setItem('alpha_theme', JSON.stringify(themeObj)); try { fetch('/theme', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(themeObj) }); } catch {} }
+          document.getElementById('cfg-apply').addEventListener('click',()=>{ applyThemeFromControls(); const s = document.getElementById('settings'); s.style.display = 'none'; });
+          (function restoreTheme(){ try { const tLocal = JSON.parse(localStorage.getItem('alpha_theme')||'{}'); if(Object.keys(tLocal).length){ (document.getElementById('cfg-card-opacity')).value = tLocal.cardOp; (document.getElementById('cfg-shadow-opacity')).value = tLocal.shOp; (document.getElementById('cfg-border-color')).value = tLocal.bcol; (document.getElementById('cfg-text-color')).value = tLocal.tcol; (document.getElementById('cfg-muted-color')).value = tLocal.mcol; (document.getElementById('cfg-btn-bg')).value = tLocal.btnBg; (document.getElementById('cfg-btn-hover')).value = tLocal.btnHover; (document.getElementById('cfg-sel-start')).value = tLocal.sStart; (document.getElementById('cfg-sel-end')).value = tLocal.sEnd; applyThemeFromControls(); } fetch('/theme').then(r=> r.ok? r.json(): null).then(t=>{ if(t && Object.keys(t).length){ (document.getElementById('cfg-card-opacity')).value = t.cardOp; (document.getElementById('cfg-shadow-opacity')).value = t.shOp; (document.getElementById('cfg-border-color')).value = t.bcol; (document.getElementById('cfg-text-color')).value = t.tcol; (document.getElementById('cfg-muted-color')).value = t.mcol; (document.getElementById('cfg-btn-bg')).value = t.btnBg; (document.getElementById('cfg-btn-hover')).value = t.btnHover; (document.getElementById('cfg-sel-start')).value = t.sStart; (document.getElementById('cfg-sel-end')).value = t.sEnd; applyThemeFromControls(); } }); } catch {} })();
+          document.getElementById('cfg-upload-data').addEventListener('click', async ()=>{ try { const input = document.getElementById('cfg-data-file'); const f = input && input.files && input.files[0]; if(!f) return; const txt = await f.text(); let j = null; try { j = JSON.parse(txt); } catch { return; } await fetch('/data', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(j) }); DATA = j; buildMonth(state.y,state.m); } catch {} });
+          function fillStatsForDate(dateStr){ if(!DATA || !DATA[dateStr]) return; const entry = DATA[dateStr]; const calc = entry.calc && entry.calc[0]; const use0 = entry.use && entry.use[0]; function set(id, val){ const el = document.getElementById(id); if(el) el.textContent = String(val); } if(calc){ set('stat-initial', calc.initBalance); set('stat-finish', calc.finalBalance); set('stat-wear', calc.wear); set('stat-balance', calc.balancePts); set('stat-trade', calc.txnPts); set('stat-today', (calc.txnPts||0)); set('stat-profit', (use0? use0.profitGross : 0)); if(use0){ set('stat-token', use0.tokenName); } }
+          }
+          document.querySelectorAll('.stat-card').forEach(el=>{ el.addEventListener('dblclick', ()=> openDialog('edit')); });
           document.getElementById('dialog').addEventListener('click',(e)=>{ if(e.target.id==='dialog') closeDialog(); });
           document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=> switchTab(t.dataset.tab)) );
           document.getElementById('prev-month').addEventListener('click',()=>{ if(state.m===0){ state.m=11; state.y--; } else state.m--; buildMonth(state.y,state.m); });
           document.getElementById('next-month').addEventListener('click',()=>{ if(state.m===11){ state.m=0; state.y++; } else state.m++; buildMonth(state.y,state.m); });
-          const now = new Date(); state.y = now.getFullYear(); state.m = now.getMonth(); buildMonth(state.y,state.m); document.getElementById('today-date').textContent = fmtDate(state.y,state.m,now.getDate());
-          try { const parsed = JSON.parse(${JSON.stringify(JSON.stringify(content))}); const count = Array.isArray(parsed)?parsed.length:0; document.getElementById('sum-valid').textContent = String(count); } catch {}
+          const now = new Date(); state.y = now.getFullYear(); state.m = now.getMonth(); buildMonth(state.y,state.m); var td = document.getElementById('today-date'); if(td) td.textContent = fmtDate(state.y,state.m,now.getDate());
+          try { const parsed = JSON.parse(${JSON.stringify(JSON.stringify(content))}); const count = Array.isArray(parsed)?parsed.length:0; var sv = document.getElementById('sum-valid'); if(sv) sv.textContent = String(count); } catch {}
+          try { fetch('/data').then(r=> r.ok? r.json(): null).then(j=>{ DATA = j||null; buildMonth(state.y,state.m); if(td) fillStatsForDate(td.textContent); }); } catch {}
         </script>
+      </body>
+    </html>
+  `;
+}
+
+export function renderLoginHtml() {
+  return `
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>登录</title>
+        <style>
+          :root { --text:#0F172A; --muted:#64748B; --card-bg:rgba(250,250,250,0.698); --border:rgba(148,163,184,0.64); --shadow:rgba(200,200,200,0.4); --blue:#3B82F6; --button-bg:#FFFFFF; --button-hover-bg:#F9FAFB; --window-bg:#FFFFFF; }
+          * { box-sizing: border-box; }
+          html, body { height: 100%; }
+          body { margin: 0; font-family: Segoe UI, Roboto, Arial, sans-serif; color: var(--text); background: var(--window-bg); }
+          .lock { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,0.25); }
+          .card { width: 100%; max-width: 420px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px var(--shadow); backdrop-filter: blur(6px); }
+          .title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 10px; }
+          .input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: #FFFFFF; }
+          .btn { width: 100%; background: var(--blue); color: #fff; border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer; margin-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="lock">
+          <form class="card" method="POST" action="/auth">
+            <div class="title">输入密码以进入</div>
+            <input class="input" type="password" name="password" placeholder="请输入密码" autocomplete="off" />
+            <button class="btn" type="submit">进入</button>
+          </form>
+        </div>
       </body>
     </html>
   `;
