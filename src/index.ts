@@ -68,7 +68,8 @@ export default {
       const ct = request.headers.get("content-type") || "";
       let password = "";
       if (ct.includes("application/json")) {
-        const data = (await request.json()) as { password?: unknown };
+        let data: { password?: unknown } = {};
+        try { data = (await request.json()) as { password?: unknown }; } catch { data = {}; }
         password = typeof data.password === "string" ? data.password : String(data.password ?? "");
       } else {
         const body = await request.text();
@@ -79,7 +80,8 @@ export default {
       const input = await pbkdf2(password, salt);
       const base = env.PASSWORD_PLAIN || "";
       if (!base) {
-        return new Response("", { status: 403 });
+        if (ct.includes("application/json")) return new Response("", { status: 403 });
+        return new Response("", { status: 302, headers: { Location: "/?error=1" } });
       }
       const expect = await pbkdf2(base, salt);
       if (input === expect) {
@@ -91,7 +93,8 @@ export default {
         const cookie = `alpha_session=${payload}.${exp}.${sig}; HttpOnly; SameSite=Lax; Path=/` + (url.protocol === "https:" ? `; Secure` : "");
         return new Response("", { status: 302, headers: { Location: "/", "Set-Cookie": cookie } });
       }
-      return new Response("", { status: 401 });
+      if (ct.includes("application/json")) return new Response("", { status: 401 });
+      return new Response("", { status: 302, headers: { Location: "/?error=1" } });
     }
 
     async function ensureKV() {

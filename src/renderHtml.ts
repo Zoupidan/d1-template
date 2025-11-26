@@ -249,10 +249,14 @@ export function renderLoginHtml() {
         <div class="lock">
           <form class="card" method="POST" action="/auth">
             <div class="title">输入密码以进入</div>
+            <div id="err" style="display:none; color:#EF4444; font-size:12px; text-align:center; margin-bottom:6px;">密码错误或系统未配置</div>
             <input class="input" type="password" name="password" placeholder="请输入密码" autocomplete="off" />
             <button class="btn" type="submit">进入</button>
           </form>
         </div>
+        <script>
+          (function(){ try { const p = new URLSearchParams(location.search); if(p.get('error')){ var el = document.getElementById('err'); if(el){ el.style.display='block'; } } } catch {} })();
+        </script>
       </body>
     </html>
   `;
