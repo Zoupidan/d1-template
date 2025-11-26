@@ -10,9 +10,9 @@ export function renderHtml(content: string) {
           :root { --text:#0F172A; --muted:#64748B; --card-bg:rgba(255,255,255,0.7); --border:rgba(148,163,184,0.64); --shadow:rgba(2,8,23,0.4); --blue:#3B82F6; --blue-start:#60A5FA; --dialog-bg:rgba(255,255,255,0.8); }
           * { box-sizing: border-box; }
           html, body { height: 100%; }
-          body { margin: 0; font-family: Segoe UI, Roboto, Arial, sans-serif; color: var(--text); background: linear-gradient(180deg, #E0F2FE 0%, #BAE6FD 40%, #FFFFFF 100%); }
-          .app { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; padding: 16px 20px; }
-          .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px; box-shadow: 0 6px 16px var(--shadow); }
+          body { margin: 0; font-family: Segoe UI, Roboto, Arial, sans-serif; color: var(--text); background: #FFFFFF; }
+          .app { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; padding: 14px; }
+          .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px; box-shadow: 0 6px 20px var(--shadow); }
           .middle { display: grid; grid-template-columns: 1fr; gap: 16px; }
           .calendar-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
           .calendar-nav { display: flex; gap: 8px; }
@@ -32,17 +32,17 @@ export function renderHtml(content: string) {
           .today-date { font-size: 14px; color: var(--muted); }
           .settings { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; background: #FFFFFF; cursor: pointer; vertical-align: middle; font-size: 16px; line-height: 1; }
           .stats-grid { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
-          .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; box-shadow: 0 4px 12px var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+          .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; box-shadow: 0 6px 14px var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; }
           .stat-label { color: var(--muted); font-size: 12px; }
           .stat-value { color: var(--text); font-size: 22px; font-weight: 600; }
           .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
           .summary-card { padding: 12px; border-radius: 14px; box-shadow: 0 6px 14px var(--shadow); background: var(--card-bg); border: 1px solid var(--border); text-align: center; }
           .summary-title { font-size: 16px; font-weight: 700; }
           .summary-value { font-size: 22px; font-weight: 700; }
-          .dialog-backdrop { position: fixed; inset: 0; background: rgba(2,8,23,0.15); display: none; align-items: center; justify-content: center; padding: 14px; backdrop-filter: blur(6px); }
-          .dialog { width: 100%; max-width: 720px; background: rgba(255,255,255,0.75); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 12px 40px rgba(2,8,23,0.35); backdrop-filter: saturate(120%) blur(10px); }
+          .dialog-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.2); display: none; align-items: center; justify-content: center; padding: 14px; }
+          .dialog { width: 100%; max-width: 680px; background: var(--dialog-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
           .tabs { display: flex; gap: 0; }
-          .tab { flex: 1; text-align: center; padding: 12px; border: 1px solid var(--border); background: #FFFFFF; cursor: pointer; border-radius: 10px; }
+          .tab { flex: 1; text-align: center; padding: 10px; border: 1px solid var(--border); background: #FFFFFF; cursor: pointer; }
           .tab.active { background: var(--blue); color: #FFFFFF; }
           .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
           .form-grid .full { grid-column: span 2; }
