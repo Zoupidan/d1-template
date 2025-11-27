@@ -1,4 +1,4 @@
-import { renderHtml, renderLoginHtml } from "./renderHtml";
+import { renderHtml, renderLoginHtml, renderDataAdminHtml } from "./renderHtml";
 
 function parseCookies(h: Headers) {
   const s = h.get("Cookie") || "";
@@ -159,7 +159,20 @@ export default {
           return new Response("", { status: 500 });
         }
       }
+      if (request.method === "DELETE") {
+        try {
+          await env.DB.prepare("DELETE FROM kv WHERE k = ?").bind("data").run();
+          return new Response("", { status: 204 });
+        } catch {
+          return new Response("", { status: 500 });
+        }
+      }
       return new Response("", { status: 405 });
+    }
+
+    if (url.pathname === "/data-admin") {
+      if (!authed) return new Response(renderLoginHtml(), { headers: { "content-type": "text/html" } });
+      return new Response(renderDataAdminHtml(), { headers: { "content-type": "text/html" } });
     }
 
     if (!authed) {

@@ -56,6 +56,7 @@ export function renderHtml(authed: boolean, content: string) {
           .dialog-actions { margin-top: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; }
           .primary { background: var(--blue); color: #FFFFFF; border-radius: 10px; padding: 12px 16px; border: none; cursor: pointer; box-shadow: 0 2px 10px rgba(59,130,246,0.3); transition: transform .1s ease; }
           .dialog .primary { padding: calc(12px * 1.5) calc(16px * 2); }
+          .dialog .btn { padding: calc(12px * 1.5) calc(16px * 2); }
           .primary:active { transform: translateY(1px); }
           .now { font-size: 12px; color: var(--muted); }
           .settings-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; padding: 14px; }
@@ -211,7 +212,7 @@ export function renderHtml(authed: boolean, content: string) {
                 <div style="font-size:12px; color:var(--muted);">原值</div>
                 <div style="font-size:12px; color:var(--muted);">修改为</div>
               </div>
-              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+              <div class="form-grid vertical">
                 <input class="input" id="orig-init" disabled />
                 <input class="input" id="edit-init" placeholder="初始资金" />
                 <input class="input" id="orig-final" disabled />
@@ -259,7 +260,7 @@ export function renderHtml(authed: boolean, content: string) {
           function fmtNum(v){ var n = Number(v); if(!isFinite(n)) return String(v); return Number.isInteger(n) ? String(n) : n.toFixed(4); }
           function fmt2(v){ var n = Number(v); if(!isFinite(n)) return String(v); return n.toFixed(2); }
           function fmtKM(v){ var n = Number(v)||0; var a = Math.abs(n); if(a>=1000000) return (n/1000000).toFixed(2)+'M'; if(a>=1000) return (n/1000).toFixed(2)+'K'; return String(n); }
-          function fillStatsForDate(dateStr){ if(!DATA || !DATA[dateStr]){ var ids = ['stat-initial','stat-finish','stat-wear','stat-balance','stat-trade','stat-today','stat-profit']; for(var i=0;i<ids.length;i++){ var el = document.getElementById(ids[i]); if(el) el.textContent = ''; } var tk0 = document.getElementById('stat-token'); if(tk0) tk0.textContent = '--'; return; } const entry = DATA[dateStr]; const calc = entry.calc && entry.calc[0]; const uses = entry.use && Array.isArray(entry.use) ? entry.use : []; function set2(id, val){ const el = document.getElementById(id); if(el) el.textContent = fmt2(val); } if(calc){ var init = Number(calc.initBalance)||0; var fin = Number(calc.finalBalance)||0; var wear = typeof calc.wear!=='undefined' ? Number(calc.wear)||0 : (init - fin); var vol = Number((calc.txnVolume!==undefined?calc.txnVolume: (calc.volume!==undefined?calc.volume: (calc.transaction!==undefined?calc.transaction: 0))))||0; var tradePts = typeof calc.txnPts!=='undefined' ? Number(calc.txnPts)||0 : (vol>=2 ? Math.floor(Math.log2(vol)) : 0); var holdPts = fin>=100000 ? 4 : (fin>=10000 ? 3 : (fin>=1000 ? 2 : (fin>=100 ? 1 : 0))); var dayPts = tradePts + holdPts; set2('stat-initial', init); set2('stat-finish', fin); set2('stat-wear', wear); set2('stat-balance', holdPts); set2('stat-trade', tradePts); set2('stat-today', dayPts); var profit = 0; try { for(var i=0;i<uses.length;i++){ var u = uses[i]; var pg = Number(u.profitGross||0)||0; if(pg){ profit += pg; continue; } var up = Number(u.unitPrice||u.price||u.tokenVal||0)||0; var qty = Number(u.quantity||u.qty||u.tokenQty||0)||0; profit += up * qty; } } catch {} set2('stat-profit', profit); var tok = document.getElementById('stat-token'); if(tok){ var names = []; try { for(var i=0;i<uses.length;i++){ var name = String(uses[i].tokenName||uses[i].name||'').trim(); if(name) names.push(name); } } catch {} tok.innerHTML = names.length? names.map(n=>'<div>'+n+'</div>').join('') : '--'; } }
+          function fillStatsForDate(dateStr){ if(!DATA || !DATA[dateStr]){ var ids = ['stat-initial','stat-finish','stat-wear','stat-balance','stat-trade','stat-today','stat-profit']; for(var i=0;i<ids.length;i++){ var el = document.getElementById(ids[i]); if(el) el.textContent = '--'; } var tk0 = document.getElementById('stat-token'); if(tk0) tk0.textContent = '--'; return; } const entry = DATA[dateStr]; const calc = entry.calc && entry.calc[0]; const uses = entry.use && Array.isArray(entry.use) ? entry.use : []; function set2(id, val){ const el = document.getElementById(id); if(el) el.textContent = fmt2(val); } if(calc){ var init = Number(calc.initBalance)||0; var fin = Number(calc.finalBalance)||0; var wear = typeof calc.wear!=='undefined' ? Number(calc.wear)||0 : (init - fin); var vol = Number((calc.txnVolume!==undefined?calc.txnVolume: (calc.volume!==undefined?calc.volume: (calc.transaction!==undefined?calc.transaction: 0))))||0; var tradePts = typeof calc.txnPts!=='undefined' ? Number(calc.txnPts)||0 : (vol>=2 ? Math.floor(Math.log2(vol)) : 0); var holdPts = fin>=100000 ? 4 : (fin>=10000 ? 3 : (fin>=1000 ? 2 : (fin>=100 ? 1 : 0))); var dayPts = tradePts + holdPts; set2('stat-initial', init); set2('stat-finish', fin); set2('stat-wear', wear); set2('stat-balance', holdPts); set2('stat-trade', tradePts); set2('stat-today', dayPts); var profit = 0; try { for(var i=0;i<uses.length;i++){ var u = uses[i]; var pg = Number(u.profitGross||0)||0; if(pg){ profit += pg; continue; } var up = Number(u.unitPrice||u.price||u.tokenVal||0)||0; var qty = Number(u.quantity||u.qty||u.tokenQty||0)||0; profit += up * qty; } } catch {} set2('stat-profit', profit); var tok = document.getElementById('stat-token'); if(tok){ var names = []; try { for(var i=0;i<uses.length;i++){ var name = String(uses[i].tokenName||uses[i].name||'').trim(); if(name) names.push(name); } } catch {} tok.innerHTML = names.length? names.map(n=>'<div>'+n+'</div>').join('') : '--'; } }
           }
           function getStatRange(){ try { var el = document.getElementById('cfg-stat-range'); var v = Number((el && (el).value) || 0); return Number.isFinite(v)?v:0; } catch { return 0; } }
           function computeSummaries(){ if(!DATA) return; var wear = 0, profit = 0, volume = 0; var range = getStatRange(); try { const now = new Date(); const pivot = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 8, 0, 0); const ref = now.getTime() < pivot.getTime() ? new Date(now.getFullYear(), now.getMonth(), now.getDate()-1) : new Date(now.getFullYear(), now.getMonth(), now.getDate()); Object.keys(DATA).forEach(k=>{ const ds = new Date(k+'T00:00:00'); const diffMs = ref.getTime() - ds.getTime(); const diffDays = Math.floor(diffMs / (24*60*60*1000)); if(range>0){ if(diffDays<0 || diffDays>range) return; } const entry = DATA[k]; const calcs = (entry && Array.isArray(entry.calc)) ? entry.calc : []; const uses = entry && Array.isArray(entry.use) ? entry.use : []; var dayVol = 0; var dayPts = 0; for(var ci=0; ci<calcs.length; ci++){ var c = calcs[ci]; var init = Number(c.initBalance)||0; var fin = Number(c.finalBalance)||0; wear += typeof c.wear!=='undefined' ? (Number(c.wear)||0) : (init - fin); var v = Number((c.txnVolume!==undefined?c.txnVolume: (c.volume!==undefined?c.volume: (c.transaction!==undefined?c.transaction: 0))))||0; if(v>0){ dayVol += v; } else if(typeof c.txnPts!=='undefined'){ var p = Number(c.txnPts)||0; if(p>0) dayPts += p; } }
@@ -320,6 +321,62 @@ export function renderLoginHtml() {
         </div>
         <script>
           (function(){ try { const p = new URLSearchParams(location.search); if(p.get('error')){ var el = document.getElementById('err'); if(el){ el.style.display='block'; } } } catch {} })();
+        </script>
+      </body>
+    </html>
+  `;
+}
+
+export function renderDataAdminHtml() {
+  return `
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>数据管理</title>
+        <style>
+          :root { --text:#0F172A; --muted:#64748B; --card-bg:#FFFFFF; --border:#94A3B8; --button-bg:#FFFFFF; --button-hover-bg:#F9FAFB; }
+          body { margin:0; font-family: Segoe UI, Roboto, Arial, sans-serif; color: var(--text); background: #FFF; }
+          .wrap { max-width: 900px; margin: 0 auto; padding: 16px; display: grid; gap: 12px; }
+          .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+          .title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+          .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+          .input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: #FFFFFF; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+          .actions { display:flex; gap:8px; }
+          .btn { padding: 10px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--button-bg); cursor: pointer; }
+          .btn:hover { background: var(--button-hover-bg); }
+          .muted { color: var(--muted); font-size: 12px; }
+          textarea.input { min-height: 240px; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <div class="card">
+            <div class="title">上传数据</div>
+            <div class="row">
+              <input class="input" type="file" id="file" accept=".json,application/json" />
+              <textarea class="input" id="text" placeholder="粘贴 JSON 文本"></textarea>
+              <div class="actions">
+                <button class="btn" id="upload-file">上传文件</button>
+                <button class="btn" id="upload-text">上传文本</button>
+              </div>
+              <div class="muted" id="status"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="title">删除数据</div>
+            <div class="actions">
+              <button class="btn" id="delete-data">删除服务器上的 data</button>
+            </div>
+          </div>
+        </div>
+        <script>
+          async function postData(text){ try { const r = await fetch('/data', { method:'POST', headers:{ 'content-type':'application/json' }, body: text }); return r.ok; } catch { return false; } }
+          function setStatus(s){ var el = document.getElementById('status'); if(el) el.textContent = s; }
+          document.getElementById('upload-file').addEventListener('click', async ()=>{ try { var f = document.getElementById('file'); var file = f && f.files && f.files[0]; if(!file){ setStatus('请选择文件'); return; } var t = await file.text(); var ok = await postData(t); setStatus(ok? '上传成功' : '上传失败'); } catch { setStatus('上传失败'); } });
+          document.getElementById('upload-text').addEventListener('click', async ()=>{ try { var t = document.getElementById('text'); var txt = (t && t.value) || ''; if(!txt.trim()){ setStatus('请输入文本'); return; } var ok = await postData(txt); setStatus(ok? '上传成功' : '上传失败'); } catch { setStatus('上传失败'); } });
+          document.getElementById('delete-data').addEventListener('click', async ()=>{ try { var r = await fetch('/data', { method:'DELETE' }); setStatus(r.ok? '删除成功' : '删除失败'); } catch { setStatus('删除失败'); } });
         </script>
       </body>
     </html>
