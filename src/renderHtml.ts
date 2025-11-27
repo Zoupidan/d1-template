@@ -194,18 +194,31 @@ export function renderHtml(authed: boolean, content: string) {
           <div class="dialog">
             <div class="today-title" style="margin-bottom:8px;">修改数据</div>
             <div class="form-grid" id="form-edit">
-              <select class="input full"><option>选择条目</option></select>
-              <input class="input" placeholder="代币名称" />
-              <input class="input" placeholder="例如 1200" />
-              <input class="input" placeholder="例如 200" />
-              <input class="input" placeholder="例如 5.000" />
-              <input class="input" placeholder="例如 3" />
-              <input class="input" placeholder="例如 4" />
-              <div class="full now" id="now-edit">时间：自动当前时间</div>
+              <div class="full" style="font-size:12px; color:var(--muted);">当日：<span id="edit-date"></span></div>
+              <div class="full" style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; align-items:center;">
+                <div style="font-size:12px; color:var(--muted);">原值</div>
+                <div style="font-size:12px; color:var(--muted);">修改为</div>
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <input class="input" id="orig-init" disabled />
+                <input class="input" id="edit-init" placeholder="初始资金" />
+                <input class="input" id="orig-final" disabled />
+                <input class="input" id="edit-final" placeholder="完成资金" />
+                <input class="input" id="orig-vol" disabled />
+                <input class="input" id="edit-vol" placeholder="交易量" />
+                <input class="input" id="orig-txnpts" disabled />
+                <input class="input" id="edit-txnpts" placeholder="交易积分" />
+                <input class="input" id="orig-balancepts" disabled />
+                <input class="input" id="edit-balancepts" placeholder="持仓积分" />
+                <input class="input" id="orig-wear" disabled />
+                <input class="input" id="edit-wear" placeholder="磨损" />
+                <input class="input" id="orig-time" disabled />
+                <input class="input" id="edit-time" placeholder="时间（YYYY-MM-DD HH:mm:ss）" />
+              </div>
             </div>
             <div class="dialog-actions">
-              <div class="now">时间：自动当前时间</div>
-              <button class="primary">保存修改</button>
+              <button class="primary" id="edit-save">保存修改</button>
+              <button class="btn" id="edit-cancel">取消</button>
             </div>
           </div>
         </div>
@@ -221,7 +234,7 @@ export function renderHtml(authed: boolean, content: string) {
           function openDialogCU(tab){ const backdrop = document.getElementById('dialog-cu'); backdrop.style.display = 'flex'; switchTabCU(tab); }
           function closeDialogCU(){ document.getElementById('dialog-cu').style.display = 'none'; }
           function switchTabCU(tab){ document.querySelectorAll('#dialog-cu .tab').forEach(t=>{ t.classList.toggle('active', t.dataset.tab===tab); }); document.getElementById('form-calc').style.display = tab==='calc'?'grid':'none'; document.getElementById('form-use').style.display = tab==='use'?'grid':'none'; const action = document.getElementById('dialog-action'); action.textContent = tab==='calc'?'计算保存':'保存使用'; }
-          function openDialogEdit(){ const backdrop = document.getElementById('dialog-edit'); backdrop.style.display = 'flex'; var ne = document.getElementById('now-edit'); if(ne) ne.textContent = '时间：' + currentTimestamp(); }
+          function openDialogEdit(){ const backdrop = document.getElementById('dialog-edit'); backdrop.style.display = 'flex'; var ds = (state.selected? fmtDate(state.selected.y, state.selected.m, state.selected.d): (function(){ var n=new Date(); return fmtDate(n.getFullYear(), n.getMonth(), n.getDate()); })()); var ed = document.getElementById('edit-date'); if(ed) ed.textContent = ds; var e = (DATA && DATA[ds]) || null; var calc0 = e && e.calc && e.calc[0] || null; var origInit = document.getElementById('orig-init'); var origFinal = document.getElementById('orig-final'); var origVol = document.getElementById('orig-vol'); var origTxnPts = document.getElementById('orig-txnpts'); var origBalPts = document.getElementById('orig-balancepts'); var origWear = document.getElementById('orig-wear'); var origTime = document.getElementById('orig-time'); var ei = document.getElementById('edit-init'); var ef = document.getElementById('edit-final'); var ev = document.getElementById('edit-vol'); var etp = document.getElementById('edit-txnpts'); var ebp = document.getElementById('edit-balancepts'); var ew = document.getElementById('edit-wear'); var et = document.getElementById('edit-time'); var init = calc0? Number(calc0.initBalance)||0 : 0; var final = calc0? Number(calc0.finalBalance)||0 : 0; var vol = calc0? Number((calc0.txnVolume!==undefined?calc0.txnVolume: (calc0.volume!==undefined?calc0.volume: (calc0.transaction!==undefined?calc0.transaction: 0))))||0 : 0; var txnpts = calc0? (typeof calc0.txnPts!=='undefined'? Number(calc0.txnPts)||0 : (vol>=2? Math.floor(Math.log2(vol)) : 0)) : 0; var balpts = final>=100000 ? 4 : (final>=10000 ? 3 : (final>=1000 ? 2 : (final>=100 ? 1 : 0))); var wear = calc0? (typeof calc0.wear!=='undefined'? Number(calc0.wear)||0 : (init - final)) : 0; var time = calc0 && (calc0.timestamp||'') || ''; if(origInit) origInit.value = String(init); if(origFinal) origFinal.value = String(final); if(origVol) origVol.value = String(vol); if(origTxnPts) origTxnPts.value = String(txnpts); if(origBalPts) origBalPts.value = String(balpts); if(origWear) origWear.value = String(wear); if(origTime) origTime.value = time; if(ei) ei.value = String(init); if(ef) ef.value = String(final); if(ev) ev.value = String(vol); if(etp) etp.value = String(txnpts); if(ebp) ebp.value = String(balpts); if(ew) ew.value = String(wear); if(et) et.value = time; }
           function closeDialogEdit(){ document.getElementById('dialog-edit').style.display = 'none'; }
           document.getElementById('open-settings').addEventListener('click',()=>{ const s = document.getElementById('settings'); s.style.display = 'flex'; });
           document.getElementById('cfg-cancel').addEventListener('click',()=>{ const s = document.getElementById('settings'); s.style.display = 'none'; });
